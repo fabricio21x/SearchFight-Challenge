@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace SearchFight.Test.Mocks
 {
     public class SearchClientMock
     {
-        private string _response;
+        private readonly string _response;
 
         public string GetResultString()
         {            
@@ -19,7 +14,7 @@ namespace SearchFight.Test.Mocks
         public SearchClientMock()
         {
             var stream = File.OpenRead("responseString.txt");
-            StreamReader reader = new StreamReader(stream);
+            var reader = new StreamReader(stream);
             _response = reader.ReadToEnd();
         }
     }

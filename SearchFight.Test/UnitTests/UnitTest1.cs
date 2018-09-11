@@ -1,15 +1,16 @@
-﻿using System;
+﻿using NUnit.Framework;
+using SearchFight.Model;
+using SearchFight.Model.Interfaces;
 using SearchFight.Test.Mocks;
-using NUnit.Framework;
 
-namespace SearchFight.Test
+namespace SearchFight.Test.UnitTests
 {
     [TestFixture]
     public class UnitTest1
     {
 
-        private SearchEngineMock _runner;
-        private SearchResultParserMock _parser;
+        private ISearchEngine _runner;
+        private ISearchParser _parser;
         private SearchClientMock _client;
 
         [TestFixtureSetUp]
@@ -43,15 +44,17 @@ namespace SearchFight.Test
         [Test]
         public void SearchResultTest()
         {
-            long result = _runner.ProcessQuery();
+            // this query is not relevant for the test as we are loading a response from a txt
+            var query = new Query();
+            var result = _runner.ProcessQuery(query);
             Assert.AreEqual(11210000000, result,"Result is not being retrieved correctly");
         }
 
         [Test]
         public void ParseResultTest()
         {
-            string resultString = _client.GetResultString();
-            string result = _parser.Parse(resultString);
+            var resultString = _client.GetResultString();
+            var result = _parser.Parse(resultString);
             Assert.AreEqual("11,210,000,000", result,"Result is not being parsed correctly");
         }
     }

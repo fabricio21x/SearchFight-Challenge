@@ -25,15 +25,14 @@ To determine the popularity of programming languages on the internet we want to 
 2. Use the following template:
 
 ```
-	<SearchEngine xsi:type="SearchRunner" SearchEngineName="________" Address="________">
-      <Client />
-      <Parser GroupIndex="1">
-        <Pattern>________</Pattern>
-      </Parser>
-    </SearchEngine>
+  <SearchEngine Address="_______" SearchEngineName="______">
+    <Parser GroupIndex="__">
+      <Pattern>_______</Pattern>
+    </Parser>
+  </SearchEngine>
 ```
 
 3. In `SearchEngineName` enter the name of the new search engine (it will be used for printing the results)
-4. In `Address` enter the search addres that the your new serch engine uses (e.g. "https://search.yahoo.com/search?p="), make sure it contains the QueryName (in this case the "p") and the "="
-5. In `Parser` leave GroupIndex in 1, you can modify it depending of your Pattern. It's related to the Regular expression matching
+4. In `Address` enter the search addres that the your new serch engine uses (e.g. "https://www.google.com/search?hl=en&q="), make sure it contains the query identifier (in this case the "q") and the "=" character
+5. In `Parser` > `GroupIndex` It's related to the Regular expression matching groups. Default value is 0
 6. In `Pattern` enter the regex pattern that will filter the response text

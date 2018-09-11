@@ -1,40 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SearchFight.Model;
+﻿using SearchFight.Model.Interfaces;
 
 namespace SearchFight.Test.Mocks
 {
-    public class SearchEngineMock
+    public class SearchEngineMock : ISearchEngine
     {
-        public string SearchEngineName
-        {
-            get { return "Google"; }
-        }
-
         public string Address
         {
             get { return "https://www.google.com"; }
-        }
+            set { ; }
+        } 
+        public string Name { get {return "Google"; } set { ; } }               
 
-        public SearchEngineMock(SearchResultParserMock parser, SearchClientMock client)
+        private readonly SearchClientMock _client;
+        public ISearchParser Parser { get; set; }
+
+        public double ProcessQuery(IQuery query)
         {
-            _parser = parser;
-            _client = client;
-        }
-
-        public SearchClientMock _client; 
-        public SearchResultParserMock _parser;
-
-        public long ProcessQuery()
-        {
-            string response = _client.GetResultString();
-            string result = _parser.Parse(response);
+            var response = _client.GetResultString();
+            var result = Parser.Parse(response);
 
             return long.Parse(result.Replace(",", "").Replace(".", ""));
         }
 
+        public SearchEngineMock(ISearchParser parser, SearchClientMock client)
+        {
+            Parser = parser;
+            _client = client;
+        }
     }
 }

@@ -1,26 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using SearchFight.Model.Interfaces;
 
 namespace SearchFight.Test.Mocks
 {
-    public class SearchResultParserMock
+    public class SearchResultParserMock : ISearchParser
     {
-        private string Pattern
+        public int GroupIndex
         {
-            get { return "\\<div[^\\>]+id=\"resultStats\"[^\\>]*\\>About ([\\d\\,\\.]+) results"; }
+            get { return 1; }
+            set { ; }
         }
-       
+
+        public RegexOptions Options
+        {
+            get { return RegexOptions.None; }
+            set { ; }
+        }
+
+        public string Pattern
+        {
+            get
+            {
+                return "\\<div[^\\>]+id=\"resultStats\"[^\\>]*\\>About ([\\d\\,\\.]+) results";
+            }
+            set { ; }
+        }
+
 
         public string Parse(string response)
         {
-            Regex re = new Regex(Pattern);
-            Match match =  re.Match(response);
+            var re = new Regex(Pattern);
+            var match =  re.Match(response);
 
-            return match.Groups[1].Value;
+            return match.Groups[GroupIndex].Value;
         }
     }
 }
