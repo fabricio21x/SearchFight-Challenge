@@ -1,0 +1,5 @@
+.vs/**
+SearchFight/bin/**
+SearchFight/obj/**
+SearchFight.Test/bin/**
+SearchFight.Test/obj/**

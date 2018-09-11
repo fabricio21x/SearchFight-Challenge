@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<ProgramConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SearchRunners>
+    <SearchEngine xsi:type="SearchRunner" SearchEngineName="Google" Address="https://www.google.com:443/search?hl=en&amp;q=">
+      <Client />
+      <Parser GroupIndex="1">
+        <Pattern>\&lt;div[^\&gt;]+id="resultStats"[^\&gt;]*\&gt;About ([\d\,\.]+) results</Pattern>
+      </Parser>
+    </SearchEngine>
+    <SearchEngine xsi:type="SearchRunner" SearchEngineName="Bing" Address="https://www.bing.com/search?q=">
+      <Client />
+      <Parser GroupIndex="1">
+        <Pattern>\&lt;span[^\&gt;]+class="sb_count"[^\&gt;]*\&gt;([\d\.\,]+)</Pattern>
+      </Parser>
+    </SearchEngine>
+  </SearchRunners>
+</ProgramConfiguration>
