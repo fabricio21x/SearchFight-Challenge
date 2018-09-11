@@ -34,5 +34,6 @@ To determine the popularity of programming languages on the internet we want to 
 
 3. In `SearchEngineName` enter the name of the new search engine (it will be used for printing the results)
 4. In `Address` enter the search addres that the your new serch engine uses (e.g. "https://www.google.com/search?hl=en&q="), make sure it contains the query identifier (in this case the "q") and the "=" character
-5. In `Parser` > `GroupIndex` It's related to the Regular expression matching groups. Default value is 0
+5. In `Parser` > `GroupIndex` you can specify which value from the regex matches you will use as the result (Default value is 0 if you dont specify any).
+   It's related to the Regular expression matching groups.
 6. In `Pattern` enter the regex pattern that will filter the response text
