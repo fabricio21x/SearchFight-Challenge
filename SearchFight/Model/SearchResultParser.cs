@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
-
+using SearchFight.Model.Interfaces;
 
 /// <summary>
 /// Class used to extract, if exists, the result from the response text
@@ -14,16 +10,12 @@ using System.Xml.Serialization;
 /// </summary>
 namespace SearchFight.Model
 {
-    public class SearchResultParser
+    public class SearchResultParser : ISearchParser
     {
         public string Pattern { get; set; }
 
-        [XmlAttribute]
-        [DefaultValue(RegexOptions.None)]
         public RegexOptions Options { get; set; }
 
-        [XmlAttribute]
-        [DefaultValue(0)]
         public int GroupIndex { get; set; }
 
         private Match FindPattern(string responseString)
@@ -57,6 +49,13 @@ namespace SearchFight.Model
             {
                 throw new RegexMatchTimeoutException(ex.Message);
             }
+        }
+
+        public SearchResultParser(string pattern, RegexOptions options, int groupIndex)
+        {
+            Pattern = pattern;
+            Options = options;
+            GroupIndex = groupIndex;
         }
     }
 }

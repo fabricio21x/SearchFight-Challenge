@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 using System.Xml.Serialization;
+using SearchFight.Model.Interfaces;
 
 /// <summary>
 /// This class models a search engine with the methods needed to retrieve the 
@@ -14,17 +9,22 @@ using System.Xml.Serialization;
 /// </summary>
 namespace SearchFight.Model
 {
-    public class SearchRunner : RunnerSerializer
+    public class SearchEngine : ISearchEngine
     {
-        [XmlAttribute]
-        public string Address { get; set; }        
-       
-        public SearchClient Client { get; set; }
-        public SearchResultParser Parser { get; set; }
+        public string Address { get; set; }
 
-        public SearchRunner()
-        {
+        public string Name { get; set; }
+
+        public ISearchParser Parser { get; set; }
+
+        private SearchClient Client { get; }        
+
+        public SearchEngine(ISearchParser parser, string name, string address)
+        {            
             Client = new SearchClient();
+            Address = address;
+            Name = name;
+            Parser = parser;
         }
 
         private Uri GetUri(string query)
@@ -33,15 +33,13 @@ namespace SearchFight.Model
             return new Uri(uri);
         }
 
-        public long ProcessQuery(IQuery query)
+        public double ProcessQuery(IQuery query)
         {
             var uri = GetUri(query.QueryText);
             string response = Client.GetResultString(uri);
             string result = Parser.Parse(response);
 
-            return long.Parse(result.Replace(",", "").Replace(".", ""));
+            return double.Parse(result.Replace(",", "").Replace(".", ""));
         }
-
-
     }
 }

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
+using SearchFight.Model.Interfaces;
 
 namespace SearchFight.Model
 {
@@ -27,11 +23,9 @@ namespace SearchFight.Model
 
         public bool Validate(string input)
         {
-            Regex rgx = new Regex(_pattern);
+            var rgx = new Regex(_pattern);
 
-            if (rgx.IsMatch(input)) return true;
-
-            return false;
+            return rgx.IsMatch(input);
         }
     }
 }

@@ -44,16 +44,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\SerializableParser.cs" />
+    <Compile Include="Model\Interfaces\IQuery.cs" />
+    <Compile Include="Model\Interfaces\ISearchEngine.cs" />
+    <Compile Include="Model\Interfaces\ISearchParser.cs" />
+    <Compile Include="Model\Interfaces\IValidator.cs" />
     <Compile Include="Model\InputValidator.cs" />
-    <Compile Include="Model\IQuery.cs" />
-    <Compile Include="Model\IValidator.cs" />
     <Compile Include="Model\ProgramConfiguration.cs" />
-    <Compile Include="Model\RunnerSerializer.cs" />
     <Compile Include="Model\Query.cs" />
     <Compile Include="Model\SearchClient.cs" />
     <Compile Include="Controller\SearchProcessor.cs" />
     <Compile Include="Model\SearchResultParser.cs" />
-    <Compile Include="Model\SearchRunner.cs" />
+    <Compile Include="Model\SearchEngine.cs" />
+    <Compile Include="Model\SerializableSearchEngine.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -66,6 +69,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using SearchFight.Model.Interfaces;
 
 /// <summary>
 /// class that handles the request and response from the search engine
@@ -20,7 +16,7 @@ namespace SearchFight.Model
     {
         private static readonly Encoding DEFAULT_ENCODING = Encoding.UTF8;
 
-        private HttpWebRequest CreateRequest(Uri uri)
+        private static HttpWebRequest CreateRequest(Uri uri)
         {
             var request = WebRequest.Create(uri) as HttpWebRequest;
             if (request == null)
@@ -31,7 +27,7 @@ namespace SearchFight.Model
         }
 
 
-        private HttpWebResponse RetrieveResponse(WebRequest webRequest)
+        private static HttpWebResponse RetrieveResponse(WebRequest webRequest)
         {
             var response = webRequest.GetResponse() as HttpWebResponse;
             if (response == null)
@@ -43,11 +39,11 @@ namespace SearchFight.Model
         }
 
 
-        private Encoding GetEncoding(HttpWebResponse response, Encoding defaultTo)
+        private static Encoding GetEncoding(HttpWebResponse response, Encoding defaultTo)
         {
             try
             {
-                if (!String.IsNullOrWhiteSpace(response.CharacterSet))
+                if (!string.IsNullOrWhiteSpace(response.CharacterSet))
                 {
                     return Encoding.GetEncoding(response.CharacterSet);
                 }

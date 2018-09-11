@@ -1,41 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SearchFight.Model.Interfaces;
 
 namespace SearchFight.Model
 {
     public class Query : IQuery
     {
-        List<string> _content;
-
         public Query()
         {
-            _content = new List<string>();
+            Content = new List<string>();
         }
 
-        public List<string> Content
-        {
-            get { return _content; }
-        }
+        private List<string> Content { get; }
 
         public string QueryText
         {
             get
             {
-                string text = "";
-                foreach (var item in _content)
-                {
-                    text+=item;
-                }
-                return text;
-            }            
+                return Content.Aggregate("", (current, item) => current +" "+ item);
+            }
         }
 
         public void SetContent(string member)
         {
-            _content.Add(member);
+            Content.Add(member);
         }
     }
 }

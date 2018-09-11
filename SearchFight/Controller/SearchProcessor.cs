@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
-using SearchFight.Model;
+﻿using System.Collections.Generic;
 using System.Threading;
+using SearchFight.Model;
+using SearchFight.Model.Interfaces;
 
 /// <summary>
 /// Controller class that handles the main behaviour
@@ -17,42 +12,32 @@ namespace SearchFight.Controller
 {
     public class SearchProcessor
     {
-        private List<IQuery> _queries;
-        private List<RunnerSerializer> _runners;
-        private Dictionary<string,string> _partialWinners;
-        private long[,] _results;
-        private string _totalWinner;
-        private List<Thread> _threads;
-        private object syncLock = new object();
+        private readonly List<IQuery> _queries;
+        private readonly List<ISearchEngine> _searchEngines;
+        private readonly Dictionary<string,string> _partialWinners;
+        private double[,] _results;
+        private readonly List<Thread> _threads;
+        private readonly object _syncLock = new object();
 
 
         public List<string> Queries
         {
-            get { return _queries.ConvertAll((res) => res.QueryText); }
+            get { return _queries.ConvertAll(res => res.QueryText); }
         }
 
 
-        public Dictionary<string, string> PartialWinners
+        public Dictionary<string, string> PartialWinners => _partialWinners;
+
+
+        public string TotalWinner { get; private set; }
+
+
+        public double[,] Results => _results;
+
+
+        public SearchProcessor(List<ISearchEngine> searchEngines)
         {
-            get { return _partialWinners; }
-        }
-
-
-        public string TotalWinner
-        {
-            get { return _totalWinner; }
-        }
-        
-
-        public long[,] Results
-        {
-            get { return _results; }
-        }
-
-
-        public SearchProcessor(List<RunnerSerializer> runners)
-        {
-            _runners = runners;
+            _searchEngines = searchEngines;
             _queries = new List<IQuery>();
             _partialWinners = new Dictionary<string, string>();
             _threads = new List<Thread>();         
@@ -66,15 +51,14 @@ namespace SearchFight.Controller
 
 
         public void ProcessQueries()
-        {
-            var result = new Dictionary<string, long>();
-            _results = new long[_queries.Count, _runners.Count];
+        {            
+            _results = new double[_queries.Count, _searchEngines.Count];
 
             for (int i = 0; i < _queries.Count; i++)
             {                
-                for (int j = 0; j < _runners.Count; j++)
+                for (int j = 0; j < _searchEngines.Count; j++)
                 {
-                    var runner = _runners[j] as SearchRunner;
+                    var runner = _searchEngines[j];
                     int a = i, b = j;
                     Thread thr = new Thread(() => ProcessQuery(runner,a,b));
                     _threads.Add(thr);
@@ -91,11 +75,11 @@ namespace SearchFight.Controller
             GetTotalWinner();                                
         }
 
-        private void ProcessQuery(SearchRunner runner, int i, int j)
+        private void ProcessQuery(ISearchEngine runner, int i, int j)
         {
-            long result = runner.ProcessQuery(_queries[i]);
+            var result = runner.ProcessQuery(_queries[i]);
 
-            lock (syncLock)
+            lock (_syncLock)
             {
                 _results[i, j] = result;
             }            
@@ -103,52 +87,48 @@ namespace SearchFight.Controller
 
         private void GetTotalWinner()
         {
-            long max = 0;
-            int maxIndex = -1;
-            for (int i = 0; i < _queries.Count; i++)
+            double max = 0;
+            var maxIndex = -1;
+            for (var i = 0; i < _queries.Count; i++)
             {
-                long sum = GetTotalResults(i);
-                if (sum > max)
-                {
-                    max = sum;
-                    maxIndex = i;
-                }
+                var sum = GetTotalResults(i);
+                if (!(sum > max)) continue;
+                max = sum;
+                maxIndex = i;
             }
 
-            _totalWinner = _queries[maxIndex].QueryText;
+            TotalWinner = _queries[maxIndex].QueryText;
         }
 
 
         private void GetPartialWinners()
         {
-            for (int i = 0; i < _runners.Count; i++)
+            for (var i = 0; i < _searchEngines.Count; i++)
             {
                 int index = GetMaxIndex(i);
-                _partialWinners[_runners[i].SearchEngineName] = _queries[index].QueryText;
+                _partialWinners[_searchEngines[i].Name] = _queries[index].QueryText;
             }
         }
 
 
         private int GetMaxIndex(int index)
         {
-            long max = 0;
-            int maxIndex=-1;
-            for (int i = 0; i < _queries.Count; i++)
-            {                
-                if (_results[i, index] > max)
-                {
-                    max = _results[i, index];
-                    maxIndex = i;
-                }                    
+            double max = 0;
+            var maxIndex=-1;
+            for (var i = 0; i < _queries.Count; i++)
+            {
+                if (!(_results[i, index] > max)) continue;
+                max = _results[i, index];
+                maxIndex = i;
             }
             return maxIndex;
         }
 
-        private long GetTotalResults(int index)
+        private double GetTotalResults(int index)
         {
-            long sum = 0;
+            double sum = 0;
 
-            for (int i = 0; i < _runners.Count; i++)
+            for (var i = 0; i < _searchEngines.Count; i++)
             {
                 sum += _results[index, i];
             }

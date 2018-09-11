@@ -1,98 +1,99 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SearchFight.Model;
-using SearchFight.Controller;
 using System.IO;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
+using System.Text;
+using System.Web.ModelBinding;
+using System.Xml;
 using System.Xml.Serialization;
+using SearchFight.Controller;
+using SearchFight.Model;
+using SearchFight.Model.Interfaces;
 
 namespace SearchFight
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
-            if (args.Count() < 1)
+            if (!args.Any())
             {
                 Console.WriteLine("You have to enter at least one argument");
                 return;
             }
 
-            var runners = GetConfiguration().SearchRunners.ToList();
-            SearchProcessor processor = new SearchProcessor(runners);
-            InputValidator validator = new InputValidator();
-            validator.Pattern = "^[a-zA-Z0-9 ]*$";
+            var config = new ProgramConfiguration();
+            var searchEngines = config.GetConfiguration();    
+                   
+            var processor = new SearchProcessor(searchEngines);
+            var validator = new InputValidator {Pattern = @"^[a-zA-Z0-9 .#+!]*$"}; //We can modify this filter according of what we want to search for
 
-            for (int i = 0; i < args.Count(); i++)
+            for (var i = 0; i < args.Count(); i++)
             {
-                string word = args[i];
+                var word = args[i];
                 if (!validator.Validate(word))
                 {
-                    Console.WriteLine("One or more arguments are invalid.");
+                    Console.WriteLine("One or more arguments are invalid (admitted: words, numbers and symbols # . ! +).");
                     return;
-                }       
-
-                Query query = new Query();
-
-                if (word.StartsWith("\""))
-                {
-                    query.SetContent(word.Substring(1));
-                    while (true)
-                    {
-                        string nextWord = args[i++];
-                        if (nextWord.EndsWith("\""))
-                        {
-                            query.SetContent(nextWord.Substring(0, nextWord.Length - 1));
-                            break;
-                        }
-                        else
-                            query.SetContent(nextWord);
-                    }
                 }
-                else
-                    query.SetContent(word);
+
+                var query = new Query();
+
+                var tokens = word.Split(' ');
+            
+                foreach (var token in tokens)
+                    query.SetContent(token);                                                   
 
                 processor.AddQuery(query);
             }
             processor.ProcessQueries();
-            PrintResults(processor, runners);
+            PrintResults(processor, searchEngines);
 
+            Console.WriteLine("Press Enter to finish");
             Console.ReadLine();
 
         }
 
 
-        private static void PrintResults(SearchProcessor processor, List<RunnerSerializer> runners)
+        private static void PrintResults(SearchProcessor processor, List<ISearchEngine> runners)
         {
-            for (int i = 0; i < processor.Queries.Count; i++)
+            for (var i = 0; i < processor.Queries.Count; i++)
             {
-                Console.Write(string.Format("{0}) {1}: ", i, processor.Queries[i]));
-                for (int j = 0; j < runners.Count; j++)
+                Console.Write("{0}) {1}: ", i+1, processor.Queries[i]);
+                for (var j = 0; j < runners.Count; j++)
                 {
-                    Console.Write(string.Format("| {0} > {1} | ", runners[j].SearchEngineName, processor.Results[i, j]));
+                    Console.Write("| {0} > {1} | ", runners[j].Name, processor.Results[i, j]);
                 }
                 Console.WriteLine();
             }
 
             foreach (var winner in processor.PartialWinners)
             {
-                Console.WriteLine(string.Format("*) {0} winner: {1}", winner.Key, winner.Value));
+                Console.WriteLine("*) {0} winner: {1}", winner.Key, winner.Value);
             }
 
-            Console.WriteLine(string.Format("> Total winner: {0}", processor.TotalWinner));
+            Console.WriteLine("> Total winner: {0}", processor.TotalWinner);
         }
 
 
-        private static ProgramConfiguration GetConfiguration()
+        private static List<ISearchEngine> GetConfiguration()
         {
             using (var stream = File.OpenRead("config.xml"))
             {
                 try
                 {
                     var serializer = new XmlSerializer(typeof(ProgramConfiguration));
-                    return (ProgramConfiguration)serializer.Deserialize(stream);
+                    var searchEngines = (serializer.Deserialize(stream) as ProgramConfiguration).SearchEngines.ToList();
+                    var engines = new List<ISearchEngine>();
+                    foreach (var searchEngine in searchEngines)
+                    {
+                        var parser = new SearchResultParser(searchEngine.Parser.Pattern,  searchEngine.Parser.Options, searchEngine.Parser.GroupIndex);                        
+                        var temp = new SearchEngine(parser, searchEngine.Name, searchEngine.Address);
+                        engines.Add(temp);
+                    }
+
+                    return engines;
                 }
                 catch (InvalidOperationException ex)
                 {
